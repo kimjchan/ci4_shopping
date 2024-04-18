@@ -7,6 +7,15 @@ class Admin extends BaseController
 
   protected $isLogin;
   protected $userInfo;
+  protected $goodsModel;
+  protected $request;
+
+  public function __construct()
+  {
+      $this->request = service('request');
+      $this->goodsModel = model('App\Models\Goods');
+
+  }
 
   private function cookieCheck()
   {
@@ -27,7 +36,11 @@ class Admin extends BaseController
 
   public function gs_list()
   {
-    return $this->common('admin_page/gs_list');
+    $res=$this->goodsModel->gets(0,10);
+    $param=[
+      'gs_list' => $res
+    ];
+    return $this->common('admin_page/gs_list', $param);
   }
 
   public function gs_register(): string
