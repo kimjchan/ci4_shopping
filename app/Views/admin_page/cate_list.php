@@ -1,44 +1,37 @@
 <div class="relative overflow-x-auto shadow-md sm:rounded-lg p-6 flex flex-col gap-3">
   <div>
-    <h2 class="text-xl font-semibold px-6">상품 리스트</h2>
+    <h2 class="text-xl font-semibold px-6">카테고리 리스트</h2>
   </div>
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
               <th scope="col" class="px-6 py-3">
-                Image
+                Category
               </th>    
               <th scope="col" class="px-6 py-3">
-                Product name
+                Main
               </th>  
               <th scope="col" class="px-6 py-3">
-                Category
+                Nav
               </th>
               <th scope="col" class="px-6 py-3">
-                Price
-              </th>
-              <th scope="col" class="px-6 py-3">
-                Action
               </th>
             </tr>
         </thead>
         <tbody>
-          <?php foreach($gs_list as $key => $gs){?>
+          <?php foreach($cate_list as $key => $cate){?>
             <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
                 <td class="px-6 py-4">
-                  <div class="w-20 h-14" style="background-image:url('<?=BASE?>writable/uploads/<?=$gs['main_img']?>'); background-size:cover; background-position:center; background-repeat:no-repeat;"></div>
+                  <?=$cate['ca_name']?>
                 </td>
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    <?=$gs['gs_name']?>
+                    <?=$cate['main_show']=='n'?'미출력':'출략'?>
                 </th>
                 <td class="px-6 py-4">
-                  <?=$gs['ca_name']?>
+                  <?=$cate['nav_show']=='n'?'미출력':'출략'?>
                 </td>
                 <td class="px-6 py-4">
-                  <?=$gs['gs_price']?>
-                </td>
-                <td class="px-6 py-4">
-                    <a href="<?=BASE?>gsRegister?idx=<?=$gs['idx']?>" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                    <a href="<?=BASE?>cateRegister?idx=<?=$cate['idx']?>" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
                 </td>
             </tr>
           <?php  } ?>

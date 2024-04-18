@@ -20,15 +20,15 @@ class Process extends BaseController
 
     public function login(): void
     {
-        $id = $this->request->getPost('id');
-        $pwd = $this->request->getPost('pwd');
-        if(($id=="admin" && $pwd=="admin") || ($id=="test" && $pwd=="test")):
-          $expiry = time() + 50000;
-          $data = ["id" => $id, "pwd"=> $pwd];
-          $cookieData = ["data" => $data, "expiry" => $expiry];
-          setcookie( "accessToken", json_encode( $cookieData ), $expiry, '/');
-          echo "<script>location.href='".BASE."'</script>";
-        endif;
+        // $id = $this->request->getPost('id');
+        // $pwd = $this->request->getPost('pwd');
+        // if(($id=="admin" && $pwd=="admin") || ($id=="test" && $pwd=="test")):
+        //   $expiry = time() + 50000;
+        //   $data = ["id" => $id, "pwd"=> $pwd];
+        //   $cookieData = ["data" => $data, "expiry" => $expiry];
+        //   setcookie( "accessToken", json_encode( $cookieData ), $expiry, '/');
+        //   echo "<script>location.href='".BASE."'</script>";
+        // endif;
     }
 
     public function logout(): void
@@ -74,12 +74,12 @@ class Process extends BaseController
             $gs_price = strip_tags($this->request->getPost('gs_price'));
             $gs_cnt = strip_tags($this->request->getPost('gs_cnt'));
             
-            if(!isset($_COOKIE[ "accessToken" ])){
-                echo "<script>alert('쿠키가 만료 되었습니다.'); location.href='".BASE."'</script>";
-                return;
-            }
-            $cookie = json_decode($_COOKIE[ "accessToken" ], true);
-            $reg_id = $cookie['data']['id'];
+            // if(!isset($_COOKIE[ "accessToken" ])){
+            //     echo "<script>alert('쿠키가 만료 되었습니다.'); location.href='".BASE."'</script>";
+            //     return;
+            // }
+            // $cookie = json_decode($_COOKIE[ "accessToken" ], true);
+            // $reg_id = $cookie['data']['id'];
             $data = [
                 'main_img' => $main_img_path,
                 'sub_img01' => $sub_img01_path,
@@ -89,12 +89,76 @@ class Process extends BaseController
                 'gs_price'=> $gs_price,
                 'gs_cnt'=> $gs_cnt,
             ];
+
+            $tb="gs_tb";
             
-            $this->goodsModel->insertData($data);
-            echo "<script>location.href='".BASE."admin'</script>";
+            $this->goodsModel->insertData($tb, $data);
+            echo "<script>location.href='".BASE."gsRegister'</script>";
         } catch (ErrorException $e) {
         
         }
 
+    }
+
+    public function register_cate()
+    {
+        try{
+            $cate_name = strip_tags($this->request->getPost('cate_name'));
+            $idx = $this->request->getPost('idx');
+            
+            // if(!isset($_COOKIE[ "accessToken" ])){
+            //     echo "<script>alert('쿠키가 만료 되었습니다.'); location.href='".BASE."'</script>";
+            //     return;
+            // }
+            $data = [
+                'ca_name' => $cate_name,
+            ];
+            $tb = "gs_category";
+            $res = $this->goodsModel->get_categories();
+
+            $duplication = false;
+            foreach($res as $key => $cate){
+                if($cate['ca_name']==$cate_name){
+                    $duplication = true;
+                    break;
+                }
+            }
+            if($duplication){
+                echo "<script>alert('기존의 카테고리가 있습니다');history.back();</script>";
+                return false;
+            }
+
+            if(isset($idx) && $idx!=null){
+                $this->goodsModel->updateData($tb, $data, $idx);
+            }else{
+                $this->goodsModel->insertData($tb, $data);
+            }
+            echo "<script>location.href='".BASE."cateList'</script>";
+        } catch (Exception $e) {
+            var_dump($e);
+        }
+    }
+
+    public function adpat_cate()
+    {
+        try{
+            $tb="gs_tb";
+            $gs_idx_arr = $this->request->getPost('gs_idx');
+            if(!isset($gs_idx_arr) || $gs_idx_arr==Null){
+                echo "<script>alert('선택된 상품이 없습니다');history.back();</script>";
+                return false;
+            }
+            $category = $this->request->getPost('category');
+            $data = [
+                'gs_category' => $category
+            ];
+            
+            foreach($gs_idx_arr as $idx){
+                $this->goodsModel->updateData($tb, $data, $idx);
+            }
+            echo "<script>location.href='".BASE."gsList'</script>";
+        }catch (Exception $e) {
+            var_dump($e);
+        }
     }
 }
