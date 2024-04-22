@@ -37,6 +37,71 @@ class Process extends BaseController
       echo "<script>location.href='".BASE."'</script>";
     }
 
+    public function gs_banner()
+    {
+        try{
+            // $this->validate([
+            //     'main_img' => 'uploaded[userfile]|max_size[userfile,100]'
+            //                    . '|mime_in[userfile,image/png,image/jpg,image/gif]'
+            //                    . '|ext_in[userfile,png,jpg,gif]|max_dims[userfile,1024,768]',
+            //     'sub_img01' => 'uploaded[sub_img01]|max_size[sub_img01,100]'
+            //                    . '|mime_in[sub_img01,image/png,image/jpg,image/gif]'
+            //                    . '|ext_in[sub_img01,png,jpg,gif]|max_dims[sub_img01,1024,768]',
+            //     'sub_img02' => 'uploaded[sub_img02]|max_size[sub_img02,100]'
+            //                    . '|mime_in[sub_img02,image/png,image/jpg,image/gif]'
+            //                    . '|ext_in[sub_img02,png,jpg,gif]|max_dims[sub_img02,1024,768]',                           
+            // ]);
+            $idx = $this->request->getPost('idx');
+            
+            $main_img_path = "";
+            if($_FILES['main_img']['size']>0){
+                $main_img = $this->request->getFile('main_img');
+                $main_img_path = $main_img->store();
+            }else if(isset($idx) && $idx!=null && $main_img_path==""){
+                $main_img_path = $this->request->getPost('main_img_path');
+            }
+            
+            $sub_img01_path = "";
+            if($_FILES['sub_img01']['size']>0){
+                $sub_img01 = $this->request->getFile('sub_img01');
+                $sub_img01_path = $sub_img01->store();
+            }else if(isset($idx) && $idx!=null && $sub_img01_path==""){
+                $sub_img01_path = $this->request->getPost('sub_img01_path');
+            }
+
+            $sub_img02_path="";
+            if($_FILES['sub_img02']['size']>0){
+                $sub_img02 = $this->request->getFile('sub_img02');
+                $sub_img02_path = $sub_img02->store();
+            }else if(isset($idx) && $idx!=null && $sub_img02_path==""){
+                $sub_img02_path = $this->request->getPost('sub_img02_path');
+            }
+            // if(!isset($_COOKIE[ "accessToken" ])){
+            //     echo "<script>alert('쿠키가 만료 되었습니다.'); location.href='".BASE."'</script>";
+            //     return;
+            // }
+            // $cookie = json_decode($_COOKIE[ "accessToken" ], true);
+            // $reg_id = $cookie['data']['id'];
+            $data = [
+                'main_img' => $main_img_path,
+                'sub_img01' => $sub_img01_path,
+                'sub_img02' => $sub_img02_path
+            ];
+
+            $tb="banner_tb";
+            if(isset($idx) && $idx!=null){
+                $this->goodsModel->updateData($tb, $data, $idx);
+            }else{
+                $this->goodsModel->insertData($tb, $data);
+            }
+            echo "<script>location.href='".BASE."admin'</script>";
+        } catch (ErrorException $e) {
+        
+        }
+
+    }
+
+
     public function register_gs()
     {
         try{
@@ -110,9 +175,7 @@ class Process extends BaseController
             //     echo "<script>alert('쿠키가 만료 되었습니다.'); location.href='".BASE."'</script>";
             //     return;
             // }
-            $data = [
-                'ca_name' => $cate_name,
-            ];
+            
             $tb = "gs_category";
             $res = $this->goodsModel->get_categories();
 
@@ -123,14 +186,27 @@ class Process extends BaseController
                     break;
                 }
             }
-            if($duplication){
-                echo "<script>alert('기존의 카테고리가 있습니다');history.back();</script>";
-                return false;
-            }
 
             if(isset($idx) && $idx!=null){
+                $nav_display = $this->request->getPost('nav_display');
+                $index_display = $this->request->getPost('index_display');
+                $data = [
+                    'ca_name' => $cate_name,
+                    'main_show' => $index_display=='on'?'y':'n',
+                    'nav_show' => $nav_display=='on'?'y':'n',
+                ];
+
                 $this->goodsModel->updateData($tb, $data, $idx);
             }else{
+                if($duplication){
+                    echo "<script>alert('기존의 카테고리가 있습니다');history.back();</script>";
+                    return false;
+                }
+                $data = [
+                    'ca_name' => $cate_name,
+                    'main_show' => 'n',
+                    'nav_show' => 'n',
+                ];
                 $this->goodsModel->insertData($tb, $data);
             }
             echo "<script>location.href='".BASE."cateList'</script>";

@@ -36,7 +36,13 @@ class Admin extends BaseController
 
   public function banner_form(): string
   {
-    return $this->common('admin_page/banner_form');
+    $res=$this->goodsModel->gets('banner_tb',0,3);
+    $count=$this->goodsModel->getBdAllCount('banner_tb');
+    $param=[
+      'banner_list' => $res,
+      'count'=>$count
+    ];
+    return $this->common('admin_page/banner_form', $param);
   }
 
   public function gs_list()
